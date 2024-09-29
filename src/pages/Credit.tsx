@@ -4,9 +4,9 @@ import { useSelector } from 'react-redux'
 import { selectIsAuthenticated } from '../features/userSlice'
 import { useNavigate } from 'react-router-dom'
 import { useSendEmailMutation } from '../app/services/userApi'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { hasErrorField } from '../utils/has-error-field'
-import { Button } from '@mui/material'
+import { Button, MenuItem, TextField } from '@mui/material'
 import { Input } from '../components/Input'
 import { BiArrowBack } from 'react-icons/bi'
 import { ErrorMessage } from '../components/ErrorMessage'
@@ -29,17 +29,16 @@ export const Credit: React.FC = () => {
     const [error, setError] = useState("")
     const [sent, setSent] = useState(false)
 
-
     const {
         handleSubmit,
         control,
-        resetField
+        resetField,
     } = useForm<EmailType>({
         mode: "onChange",
         reValidateMode: "onBlur",
         defaultValues: {
-        amount: "",
-        term: "",
+            amount: "",
+            term: "",
         },
     })
 
@@ -48,6 +47,8 @@ export const Credit: React.FC = () => {
             const res = await sendEmail(data).unwrap()
             if (res.status === "Accepted") {
                 setSent(true)
+            } else {
+                setError(res.status)
             }
         } catch (err) {
             if (hasErrorField(err)) {
@@ -84,21 +85,42 @@ export const Credit: React.FC = () => {
                 <Input
                     control={control}
                     name="amount"
-                    label="Количество"
+                    label="Cумма"
+                    placeholder='Сумма'
                     type="text"
                     required="Обязательное поле"
                 />
-                <Input
-                    control={control}
+                
+                <Controller
                     name="term"
-                    label="Срок (в месяцах)"
-                    type="text"
-                    required="Обязательное поле"
+                    control={control}
+                    rules={{ required: "Обязательное поле" }}
+                    render={({ field }) => (
+                        <TextField
+                            size='small'
+                            {...field}
+                            className='w-[210px]'
+                            select
+                            label="Срок"
+                            placeholder='Срок'
+                            error={!!error}
+                            helperText={error ? error : ""}
+                        >
+                            <MenuItem value="1 месяц">1 месяц</MenuItem>
+                            <MenuItem value="3 месяца">3 месяца</MenuItem>
+                            <MenuItem value="6 месяцев">6 месяцев</MenuItem>
+                            <MenuItem value="12 месяцев">12 месяцев</MenuItem>
+                            <MenuItem value="18 месяцев">18 месяцев</MenuItem>
+                            <MenuItem value="24 месяца">24 месяца</MenuItem>
+                            <MenuItem value="36 месяцев">36 месяцев</MenuItem>
+                            <MenuItem value="48 месяцев">48 месяцев</MenuItem>
+                        </TextField>
+                    )}
                 />
 
                 <ErrorMessage error={error} />
                 
-                <Button color="primary" type="submit" variant='contained' size='small'>
+                <Button className='w-[210px]' color="primary" type="submit" variant='contained' size='small'>
                     {isLoading ? "Загрузка..." : "Получить"}
                 </Button>
             </form>
@@ -107,4 +129,3 @@ export const Credit: React.FC = () => {
         )
     }
 }
-

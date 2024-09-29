@@ -28,7 +28,26 @@ export const Input: React.FC<Props> = ({
     } = useController({
         name,
         control,
-        rules: { required },
+        rules: name === 'amount' ? {
+            required,
+            validate: (value) => {
+                const numberValue = Number(value);
+                if (isNaN(numberValue)) {
+                    return "Введите корректное число";
+                }
+                if (numberValue < 0) {
+                    return "Сумма не может быть меньше 0";
+                }
+                if (numberValue > 499999) {
+                    return "Сумма не может превышать 499999";
+                }
+                return true;
+            },
+            pattern: {
+                value: /^[0-9]*$/,
+                message: "Введите только цифры",
+            },
+        } : { required },
     })
 
     return (

@@ -29,7 +29,6 @@ export const Header = () => {
 				<div>
 					{isAuthenticated && (
 						<Button
-							color="info"
 							variant="outlined"
 							className="flex gap-2"
                             size="small"
